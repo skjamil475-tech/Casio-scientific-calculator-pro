@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101820"><meta name="description" content="A sleek scientific calculator with offline support.">
+<link rel="manifest" href="./manifest.webmanifest"><title>Casio Scientific Calculator Pro</title>
+<style>
+:root{color-scheme:dark;--bg:#101820;--key:#263541;--text:#f3f6f8;--muted:#91a1ad}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#0b1118,#172631);font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:var(--text);min-height:100vh;display:grid;place-items:center;padding:16px}
+.app{width:min(100%,470px);background:#111b24;border:1px solid #344552;border-radius:28px;padding:18px;box-shadow:0 24px 70px #0009}
+.top{display:flex;justify-content:space-between;align-items:center;margin:2px 2px 16px}.brand{font-weight:800;letter-spacing:1.4px;font-size:14px;color:#e9b949}.sub{font-size:11px;color:var(--muted);margin-top:3px}.mode{border:1px solid #50616e;border-radius:10px;background:#263541;color:#fff;padding:8px 12px;font-weight:700}
+.screen{background:#dce8dc;color:#17231d;border-radius:16px;padding:14px 16px;min-height:122px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;box-shadow:inset 0 2px 8px #0003}
+.small{font-size:13px;color:#526052;min-height:20px;overflow-wrap:anywhere}.display{font-size:clamp(28px,8vw,40px);font-weight:650;text-align:right;white-space:nowrap;overflow-x:auto;scrollbar-width:none;min-height:52px}
+.status{display:flex;gap:12px;color:#526052;font-size:11px;font-weight:700}.keys{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-top:15px}
+button{border:0;border-radius:12px;min-height:54px;background:var(--key);color:var(--text);font-size:17px;font-weight:650;box-shadow:0 3px 0 #0a1117;cursor:pointer;touch-action:manipulation}
+button:active{transform:translateY(2px);box-shadow:0 1px 0 #0a1117}button.fn{font-size:14px;color:#bcd2df;background:#314553}button.op{color:#ffd36a;background:#3c4140}button.danger{background:#6b3438;color:#fff}button.equal{background:#d99b17;color:#151a1e;font-size:23px}button.zero{grid-column:span 2}
+.footer{text-align:center;color:#758793;font-size:11px;margin:17px 0 2px}
+@media(max-width:360px){.app{padding:13px}.keys{gap:7px}button{min-height:49px;font-size:15px}}
+</style></head><body>
+<main class="app"><header class="top"><div><div class="brand">CASIO · SCIENTIFIC PRO</div><div class="sub">SMART CALCULATOR</div></div><button class="mode" id="angle">DEG</button></header>
+<section class="screen" aria-live="polite"><div class="small" id="history">Ready</div><div class="display" id="display">0</div><div class="status"><span id="angleStatus">DEG MODE</span><span>•</span><span>OFFLINE READY</span></div></section>
+<section class="keys" id="keys">
+<button class="fn" data-act="clear">AC</button><button class="fn" data-act="del">DEL</button><button class="fn" data-val="(">(</button><button class="fn" data-val=")">)</button><button class="op" data-val="/">÷</button>
+<button class="fn" data-fn="sin">sin</button><button class="fn" data-fn="cos">cos</button><button class="fn" data-fn="tan">tan</button><button class="fn" data-val="^">xʸ</button><button class="op" data-val="*">×</button>
+<button class="fn" data-fn="asin">sin⁻¹</button><button class="fn" data-fn="acos">cos⁻¹</button><button class="fn" data-fn="atan">tan⁻¹</button><button class="fn" data-fn="sqrt">√</button><button class="op" data-val="-">−</button>
+<button class="fn" data-fn="log">log</button><button class="fn" data-fn="ln">ln</button><button class="fn" data-val="pi">π</button><button class="fn" data-val="e">e</button><button class="op" data-val="+">+</button>
+<button data-val="7">7</button><button data-val="8">8</button><button data-val="9">9</button><button class="fn" data-val="%">%</button><button class="fn" data-val="!">x!</button>
+<button data-val="4">4</button><button data-val="5">5</button><button data-val="6">6</button><button class="fn" data-fn="abs">|x|</button><button class="op" data-val="^2">x²</button>
+<button data-val="1">1</button><button data-val="2">2</button><button data-val="3">3</button><button class="fn" data-val=".">.</button><button class="op" data-val="Ans">Ans</button>
+<button class="zero" data-val="0">0</button><button class="danger" data-act="sign">+/−</button><button class="equal" data-act="equals">=</button>
+</section><div class="footer">Casio Scientific Calculator Pro · Installable PWA</div></main>
+<script>
+(()=>{const $=id=>document.getElementById(id),display=$('display'),history=$('history');let expr='',answer=0,deg=true;
+const render=()=>{display.textContent=expr||'0';display.scrollLeft=display.scrollWidth},insert=v=>{if(expr==='Error')expr='';expr+=v;render()};
+const factorial=n=>{if(n<0||!Number.isInteger(n)||n>170)throw Error('Invalid factorial');let r=1;for(let i=2;i<=n;i++)r*=i;return r};
+function tokenize(s){s=s.replace(/×/g,'*').replace(/÷/g,'/').replace(/π/g,'pi').replace(/−/g,'-').replace(/\s/g,'');const re=/\d+(?:\.\d*)?(?:e[+-]?\d+)?|(?:pi|Ans|sin|cos|tan|asin|acos|atan|sqrt|log|ln|abs)|[a-zA-Z]+|[()+\-*/^%!]/gy;let out=[],i=0;while(i<s.length){re.lastIndex=i;let m=re.exec(s);if(!m)throw Error('Invalid input');out.push(m[0]);i=re.lastIndex}return out}
+function evaluate(source){let t=tokenize(source),p=0;const peek=()=>t[p],take=()=>t[p++];function primary(){let x=take();if(x===undefined)throw Error('Incomplete');if(x==='+')return primary();if(x==='-')return-primary();if(x==='('){let v=add();if(take()!==')')throw Error('Missing )');return v}if(x==='pi')return Math.PI;if(x==='e')return Math.E;if(x==='Ans')return answer;if(!isNaN(Number(x)))return Number(x);if(['sin','cos','tan','asin','acos','atan','sqrt','log','ln','abs'].includes(x)){let v=primary();if(['sin','cos','tan'].includes(x))return Math[x](deg?v*Math.PI/180:v);if(['asin','acos','atan'].includes(x)){let a=Math[x](v);return deg?a*180/Math.PI:a}if(x==='sqrt')return Math.sqrt(v);if(x==='log')return Math.log10(v);if(x==='ln')return Math.log(v);return Math.abs(v)}throw Error('Invalid token')}
+function postfix(){let v=primary();while(peek()==='!'||peek()==='%'){let op=take();v=op==='!'?factorial(v):v/100}return v}function power(){let v=postfix();if(peek()==='^'){take();v=Math.pow(v,power())}return v}function mul(){let v=power();while(peek()==='*'||peek()==='/'){let op=take(),r=power();v=op==='*'?v*r:v/r}return v}function add(){let v=mul();while(peek()==='+'||peek()==='-'){let op=take(),r=mul();v=op==='+'?v+r:v-r}return v}let result=add();if(p<t.length)throw Error('Invalid expression');if(!Number.isFinite(result))throw Error('Math error');return result}
+const format=n=>Number(n.toPrecision(12)).toString();
+$('keys').addEventListener('click',e=>{let b=e.target.closest('button');if(!b)return;if(b.dataset.val)insert(b.dataset.val);if(b.dataset.fn)insert(b.dataset.fn+'(');if(b.dataset.act==='clear'){expr='';history.textContent='Ready';render()}if(b.dataset.act==='del'){expr=expr.slice(0,-1);render()}if(b.dataset.act==='sign'){if(expr)expr=expr.startsWith('-')?expr.slice(1):'-('+expr+')';render()}if(b.dataset.act==='equals'){try{let val=evaluate(expr);history.textContent=expr+' =';answer=val;expr=format(val);render()}catch(err){history.textContent=err.message;display.textContent='Error';expr=''}}});
+$('angle').addEventListener('click',()=>{deg=!deg;$('angle').textContent=deg?'DEG':'RAD';$('angleStatus').textContent=deg?'DEG MODE':'RAD MODE'});
+document.addEventListener('keydown',e=>{if(/[0-9.+\-*/()%^]/.test(e.key)&&e.key.length===1)insert(e.key);else if(e.key==='Enter')document.querySelector('[data-act=equals]').click();else if(e.key==='Backspace')document.querySelector('[data-act=del]').click();else if(e.key==='Escape')document.querySelector('[data-act=clear]').click()});
+if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));render()})();
+</script></body></html>
