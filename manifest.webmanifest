@@ -1,0 +1,10 @@
+{
+  "name": "Casio Scientific Calculator Pro",
+  "short_name": "Scientific Calc",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#101820",
+  "theme_color": "#101820",
+  "description": "Scientific calculator with offline support."
+}
